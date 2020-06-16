@@ -63,6 +63,7 @@ module.exports = merge(baseWebpackConfig, {
       chunks: "all",
       minChunks: 1,
       minSize: 0,
+      /*
       cacheGroups: {
         framework: {
           test: "framework",
@@ -70,6 +71,7 @@ module.exports = merge(baseWebpackConfig, {
           enforce: true
         }
       }
+      */
     },
     // 压缩css代码
     minimizer: [
