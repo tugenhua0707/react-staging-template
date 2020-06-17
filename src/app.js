@@ -1,10 +1,10 @@
 
-import React from 'react';
+import React from "react";
 
-import './css/app.less';
+import "./css/app.less";
 
-import background from './images/1.jpg';
-import background2 from './images/2.jpg';
+import background from "./images/1.jpg";
+import background2 from "./images/2.jpg";
 
 function App() {
   console.log(process.env);
@@ -16,5 +16,4 @@ function App() {
     </div>
   );
 }
-
 export default App;
