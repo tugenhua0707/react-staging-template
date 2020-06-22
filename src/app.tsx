@@ -1,5 +1,6 @@
 
 import React from "react";
+import { Home } from './components/home';
 
 import "./css/app.less";
 
@@ -13,6 +14,7 @@ function App() {
       <div className="app">hello world22225677</div>
       <img className="background" src={background} alt=""/>
       <img className="background" src={background2} alt=""/>
+      <Home name="kongzhi" />
     </div>
   );
 }

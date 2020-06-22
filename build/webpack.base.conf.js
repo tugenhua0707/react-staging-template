@@ -9,9 +9,11 @@ const AddAssetHtmlWebpackPlugin = require('add-asset-html-webpack-plugin');
 // 引入HappyPack插件 
 const HappyPack = require('happypack');
 
-module.exports = {
+const { CheckerPlugin } = require('awesome-typescript-loader');
+
+const config = {
   entry: {
-    app: './src/index.js',
+    app: './src/index.tsx',
     // framework: ['react', 'react-dom']
   },
   output: {
@@ -20,6 +22,15 @@ module.exports = {
   },
   module: {
     rules: [
+      {
+        test: /\.ts[x]?$/,
+        loader: 'awesome-typescript-loader'
+      },
+      {
+        enforce: 'pre',
+        test: /\.ts[x]$/,
+        loader: 'source-map-loader'
+      },
       {
         test: /\.(js|jsx)?$/,
         // use: "babel-loader",
@@ -57,9 +68,10 @@ module.exports = {
   },
   resolve: {
     alias: {
-      '@components': '../src/components'
+      '@components': '../src/components',
+      '@src': "../src"
     },
-    extensions: ['.js', '.jsx', '.vue', '.ts']
+    extensions: ['.ts', '.tsx', '.js', '.jsx', '.vue', '.ts']
   },
   plugins: [
     // 设置环境变量信息
@@ -84,5 +96,8 @@ module.exports = {
       loaders:['babel-loader'],
     }),
 
+    new CheckerPlugin(),
   ]
 };
+
+module.exports = config;
