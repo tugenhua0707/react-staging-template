@@ -339,7 +339,7 @@ module.exports = {
       "afterColon": true
     }],
     // 强制使用一致的换行风格
-    "linebreak-style": [1, "unix"],
+    // "linebreak-style": [1, "unix"],
     // 要求在注释周围有空行 ( 要求在块级注释之前有一空行)
     "lines-around-comment": [1, {
       "beforeBlockComment": true

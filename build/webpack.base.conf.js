@@ -12,7 +12,6 @@ const HappyPack = require('happypack');
 module.exports = {
   entry: {
     app: './src/index.js',
-    // framework: ['react', 'react-dom']
   },
   output: {
     filename: 'js/bundle.js',

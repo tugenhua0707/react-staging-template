@@ -6,7 +6,7 @@ module.exports = {
   mode: 'production',
   entry: {
     // 项目中用到该依赖库文件
-    vendor: ['react', 'react-dom']
+    vendor: ['react', 'react-dom', 'react-router-dom']
   },
   // 输出文件
   output: {
