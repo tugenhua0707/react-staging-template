@@ -9,7 +9,7 @@ const AddAssetHtmlWebpackPlugin = require('add-asset-html-webpack-plugin');
 // 引入HappyPack插件 
 const HappyPack = require('happypack');
 
-module.exports = {
+const obj = {
   entry: {
     app: './src/index.js',
   },
@@ -67,7 +67,7 @@ module.exports = {
         NODE_ENV: JSON.stringify(process.env.NODE_ENV)
       }
     }),
-
+    /*
     new AddAssetHtmlWebpackPlugin({
       filepath: path.resolve(__dirname, '..', 'dll/vendor.dll.js') // 对应的 dll 文件路径
     }),
@@ -75,13 +75,14 @@ module.exports = {
     new webpack.DllReferencePlugin({
       manifest: path.resolve(__dirname, '..', 'dll/vendor.manifest.json')
     }),
-    
+    */
     new HappyPack({
       // 用唯一的标识符id，来代表当前的HappyPack是用来处理一类特定的文件
       id:'jsBabel',
       // 如何处理.js文件，用法和Loader配置中一样
       loaders:['babel-loader'],
     }),
-
   ]
 };
+console.log(process.env); 
+module.exports = obj;

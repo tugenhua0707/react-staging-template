@@ -62,7 +62,7 @@ module.exports = merge(baseWebpackConfig, {
     new webpack.HotModuleReplacementPlugin()
   ],
   devServer: {
-    port: '8080',
+    port: '8081',
     contentBase: path.join(__dirname, '../public'),
     compress: true,
     historyApiFallback: true,
