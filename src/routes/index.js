@@ -1,5 +1,5 @@
 import Home from "../pages/home/Home";
-import About from "../pages//about/About";
+import About from "../pages/about/About";
 
 const routeConfig = [
   {

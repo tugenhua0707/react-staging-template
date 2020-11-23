@@ -450,7 +450,7 @@ module.exports = {
     // 要求对象字面量属性名称用引号括起来
     "quote-props": 0,
     // 强制使用一致的反勾号、双引号或单引号
-    "quotes": [2, "double", "avoid-escape"],
+    "quotes": [2, "single", "avoid-escape"],
     // 要求使用 JSDoc 注释
     "require-jsdoc": 1,
     // 要求或禁止使用分号而不是 ASI（这个才是控制行尾部分号的，）
@@ -487,9 +487,9 @@ module.exports = {
     
     // 要求箭头函数体使用大括号
     "arrow-body-style": 2,
-    // 要求箭头函数的参数使用圆括号
-    "arrow-parens": 2,
-    "arrow-spacing": [2, {
+    // 不要求箭头函数的参数使用圆括号
+    "arrow-parens": 0,
+    "arrow-spacing": [0, {
       "before": true,
       "after": true
     }],

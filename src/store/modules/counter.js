@@ -1,5 +1,5 @@
 
-import { handleActions } from "../util";
+import { handleActions } from '../util';
 
 const initialState = {
   count: 0
@@ -10,12 +10,13 @@ const reducers = {
     console.log(state.count);
   },
   minus(state, action) {
-    state.count--
+    state.count--;
   },
-}
+};
 export default (state = initialState, action) => handleActions({
   state,
   action,
   reducers,
   namespace: 'counter',
-})
+});
+

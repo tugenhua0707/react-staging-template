@@ -1,14 +1,13 @@
-
 import { createStore, combineReducers } from 'redux';
 import counter from './modules/counter';
 import todoList from './modules/todoList';
 
 const reducer = combineReducers({
   counter,
-  todoList,
+  todoList
 });
 
-const store = createStore(reducer, window.__REDUX_DEVTOOLS_EXTENSION__ && window.__REDUX_DEVTOOLS_EXTENSION__())
+const store = createStore(reducer);
 
 const _dispatch = store.dispatch;
 

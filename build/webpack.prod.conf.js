@@ -53,6 +53,14 @@ module.exports = merge(baseWebpackConfig, {
     }),
     new CleanWebpackPlugin(),
 
+    new AddAssetHtmlWebpackPlugin({
+      filepath: path.resolve(__dirname, '..', 'dll/vendor.dll.js') // 对应的 dll 文件路径
+    }),
+    // 告诉webpack使用了哪些第三方库代码
+    new webpack.DllReferencePlugin({
+      manifest: path.resolve(__dirname, '..', 'dll/vendor.manifest.json')
+    }),
+    
     new MiniCssExtractPlugin({
       filename: 'css/[name].[contenthash:8].css',
       chunkFilename: 'css/[id].[contenthash:8].css',

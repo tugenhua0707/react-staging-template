@@ -56,7 +56,10 @@ const obj = {
   },
   resolve: {
     alias: {
-      '@components': '../src/components'
+      '@components': path.resolve(__dirname, '../src/components'),
+      '@store': path.resolve(__dirname, '../src/store'),
+      '@assets': path.resolve(__dirname, '../src/assets'),
+      '@pages': path.resolve(__dirname, '../src/pages'),
     },
     extensions: ['.js', '.jsx', '.vue', '.ts']
   },
@@ -67,15 +70,6 @@ const obj = {
         NODE_ENV: JSON.stringify(process.env.NODE_ENV)
       }
     }),
-    /*
-    new AddAssetHtmlWebpackPlugin({
-      filepath: path.resolve(__dirname, '..', 'dll/vendor.dll.js') // 对应的 dll 文件路径
-    }),
-    // 告诉webpack使用了哪些第三方库代码
-    new webpack.DllReferencePlugin({
-      manifest: path.resolve(__dirname, '..', 'dll/vendor.manifest.json')
-    }),
-    */
     new HappyPack({
       // 用唯一的标识符id，来代表当前的HappyPack是用来处理一类特定的文件
       id:'jsBabel',
@@ -84,5 +78,4 @@ const obj = {
     }),
   ]
 };
-console.log(process.env); 
 module.exports = obj;

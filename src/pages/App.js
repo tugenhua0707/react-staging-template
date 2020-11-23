@@ -1,9 +1,9 @@
-import React, { Component } from "react";
+import React, { Component } from 'react';
 import {
   Link
-} from "react-router-dom";
+} from 'react-router-dom';
 
-import store from '../store';
+import store from '@store';
 
 class App extends Component {
   constructor(props) {
@@ -26,7 +26,7 @@ class App extends Component {
       // 使用setState 重新渲染页面
       this.setState({
         count: counter.count
-      })
+      });
     });
     console.log(this.state);
     return (
