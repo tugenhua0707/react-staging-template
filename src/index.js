@@ -1,19 +1,20 @@
 import React from 'react';
-import { render } from 'react-dom';
-import { BrowserRouter as Router, Route, Switch } from 'react-router-dom';
+import ReactDOM from 'react-dom';
+import { BrowserRouter } from 'react-router-dom';
+import { PersistGate } from 'redux-persist/lib/integration/react';
+import { Provider } from 'react-redux';
+import { persistor } from '@store';
+import store from '@store';
 import App from './pages/App';
-import './assets/css/app.less';
-import Home from './pages/home/Home';
-import About from './pages/about/About';
 
-render(
-  <Router>
-    <Switch>
-      <Route path='/' exact component={App} />
-      <Route path='/index' exact component={Home} />
-      <Route path='/about' exact component={About} />
-    </Switch>
-  </Router>,
+ReactDOM.render(
+  <BrowserRouter>
+    <Provider store={store}>
+      <PersistGate persistor={persistor} loading={null}>
+        <App />
+      </PersistGate>
+    </Provider>
+  </BrowserRouter>,
   document.getElementById('root')
 );
 

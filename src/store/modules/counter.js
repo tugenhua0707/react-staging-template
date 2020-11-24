@@ -11,12 +11,12 @@ const reducers = {
   },
   minus(state, action) {
     state.count--;
-  },
+  }
 };
 export default (state = initialState, action) => handleActions({
   state,
   action,
   reducers,
-  namespace: 'counter',
+  namespace: 'counter'
 });
 
