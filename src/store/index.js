@@ -21,6 +21,8 @@ const persistConfig = {
 };
 const myPersistReducer = persistReducer(persistConfig, reducers);
 
+console.log('--------------', devToolsEnhancer)
+
 const store = createStore(myPersistReducer, devToolsEnhancer());
 export const persistor = persistStore(store);
 // const _dispatch = store.dispatch;

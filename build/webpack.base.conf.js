@@ -56,10 +56,12 @@ const obj = {
   },
   resolve: {
     alias: {
+      '@src': path.resolve(__dirname, '../src'),
       '@components': path.resolve(__dirname, '../src/components'),
       '@store': path.resolve(__dirname, '../src/store'),
       '@assets': path.resolve(__dirname, '../src/assets'),
       '@pages': path.resolve(__dirname, '../src/pages'),
+      '@routes': path.resolve(__dirname, '../src/routes'),
     },
     extensions: ['.js', '.jsx', '.vue', '.ts']
   },
