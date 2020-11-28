@@ -1,12 +1,13 @@
+
 import React, { Component} from 'react';
 
-export default class Home extends Component {
-  constructor(props) {
-  	super(props);
-  }
+export default class About extends Component {
   render() {
-  	return (
-  	  <div>404页面</div>
-  	)
+    return (
+      <div>
+        <h1>404页面</h1>
+      </div>
+    );
   }
 }
+

@@ -1,17 +1,17 @@
 
 import React, { Suspense } from 'react';
 import {
-    BrowserRouter as Router,
-    Route,
-    NavLink,
-    Redirect,
+  BrowserRouter as Router,
+  Route,
+  Redirect,
 } from 'react-router-dom';
 
 // 导入所有的路由文件
 import NotFound from '@components/NotFound';
-import firstRouter from './firstRouter';
+import FirstRouter from './firstRouter';
+
 const routes = [
-  ...firstRouter,
+  ...FirstRouter,
 ];
 
 // 根据条件生成相应的组件
