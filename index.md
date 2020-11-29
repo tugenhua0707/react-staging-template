@@ -38,6 +38,7 @@ node实现接口转发。
 
 明天要完成的事情
 
-添加axios请求。
 node启动页面，封装webpack。可以本地访问，也可以使用ip地址访问。
+(https://blog.csdn.net/qq_41257129/article/details/104038713)
+(https://juejin.cn/post/6871053664610418695)
 
