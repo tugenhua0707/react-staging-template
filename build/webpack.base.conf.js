@@ -62,6 +62,7 @@ const obj = {
       '@assets': path.resolve(__dirname, '../src/assets'),
       '@pages': path.resolve(__dirname, '../src/pages'),
       '@routes': path.resolve(__dirname, '../src/routes'),
+      '@server': path.resolve(__dirname, '../src/server'),
     },
     extensions: ['.js', '.jsx', '.vue', '.ts']
   },

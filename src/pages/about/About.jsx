@@ -1,5 +1,6 @@
 
 import React, { Component} from 'react';
+import { getWidget } from '@server/config';
 
 function log(target, name, descriptor) {
   target.islog = true;
@@ -13,11 +14,23 @@ function log(target, name, descriptor) {
   console.log(name); // undefined
 }
 
-@log
+// @log
 export default class About extends Component {
   xx = () => {
   	console.log(this)
   	return 'aa';
+  }
+
+  componentDidMount() {
+    getWidget({
+      'id': 'LocalNews',
+      'ajax': 'json'
+    }).then((data) => {
+      console.log('data---');
+      console.log(data);
+    }).catch(err => {
+      console.log(err);
+    });
   }
   render() {
   	console.log('------测试-----');

@@ -3,7 +3,7 @@ import React, { Suspense } from 'react';
 import {
   BrowserRouter as Router,
   Route,
-  Redirect,
+  Redirect
 } from 'react-router-dom';
 
 // 导入所有的路由文件
@@ -13,16 +13,17 @@ import FirstRouter from './firstRouter';
 const routes = [
   ...FirstRouter,
 ];
-
 // 根据条件生成相应的组件
 const RouteWithSubRoutes = route => {
-  if (!route.path) return <Route component={NotFound} />
+  if (!route.path) {
+    return <Route component={NotFound} />
+  }
   return (
     <Route
       exact
       strict
-      path={ route.path }
-      render={
+      path = { route.path }
+      render = {
         props => (
           route.redirect ?
             <Redirect push to={route.redirect} from={route.path} /> :
