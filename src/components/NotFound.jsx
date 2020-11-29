@@ -1,7 +1,10 @@
 
 import React, { Component} from 'react';
 
-export default class About extends Component {
+export default class NotFound extends Component {
+  run() {
+  	console.log('this is running');
+  }
   render() {
     return (
       <div>

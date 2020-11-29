@@ -17,7 +17,10 @@
 10. 封装一些公用的组件。
 11. 菊花加载。(https://blog.csdn.net/weixin_43443341/article/details/105703198)
 12. node实现接口转发。
-13. 引入装饰器环境。
+13. 引入装饰器环境
+(https://segmentfault.com/a/1190000019851153)。
+(https://www.cnblogs.com/superlizhao/p/10393237.html)。
+https://blog.csdn.net/youlinhuanyan/article/details/107867162
 
 14. 支持服务器端渲染。
 15. 引用qiankun解决微前端架构。
@@ -31,10 +34,10 @@
 引入装饰器环境。
 全局引入菊花。
 支持typescript。
+node实现接口转发。
 
 明天要完成的事情
 
-node实现接口转发。
 添加axios请求。
 node启动页面，封装webpack。可以本地访问，也可以使用ip地址访问。
 

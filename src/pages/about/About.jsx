@@ -1,8 +1,27 @@
 
 import React, { Component} from 'react';
 
+function log(target, name, descriptor) {
+  target.islog = true;
+  /*
+   打印：
+   ƒ Car() {
+     babel_runtime_helpers_classCallCheck__WEBPACK_IMPORTED_MODULE_0___default()(this, Car);
+   }
+  */
+  console.log(target); // Car类本身
+  console.log(name); // undefined
+}
+
+@log
 export default class About extends Component {
+  xx = () => {
+  	console.log(this)
+  	return 'aa';
+  }
   render() {
+  	console.log('------测试-----');
+  	console.log(this);
     return (
       <div>
         <h1>关于</h1>

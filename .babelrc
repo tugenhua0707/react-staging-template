@@ -16,5 +16,5 @@
       }
     ],
     "@babel/preset-react"  // 转换react代码
-  ]
+  ],
 }
