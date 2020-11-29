@@ -4,8 +4,6 @@
 const path = require('path');
 const webpack = require('webpack');
 
-const AddAssetHtmlWebpackPlugin = require('add-asset-html-webpack-plugin');
-
 // 引入HappyPack插件 
 const HappyPack = require('happypack');
 
@@ -64,7 +62,7 @@ const obj = {
       '@routes': path.resolve(__dirname, '../src/routes'),
       '@server': path.resolve(__dirname, '../src/server'),
     },
-    extensions: ['.js', '.jsx', '.vue', '.ts']
+    extensions: ['.js', '.jsx', '.vue', '.ts', '.tsx']
   },
   plugins: [
     // 设置环境变量信息

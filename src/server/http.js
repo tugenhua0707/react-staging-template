@@ -1,10 +1,31 @@
 // http.js
 import axios from 'axios';
 import QS from 'qs'; // 引入qs模块, 用来序列化post类型的数据
+import store from '@store';
+
+/* 添加一个计数器 */
+let needLoadingRequestCount = 0
+
+function showFullScreenLoading() {
+  if (needLoadingRequestCount === 0) {
+    store.dispatch({ type: 'loading/open' });
+  }
+  needLoadingRequestCount++
+}
+
+function tryHideFullScreenLoading() {
+  if (needLoadingRequestCount <= 0) {
+    return;
+  }
+  needLoadingRequestCount--;
+  if (needLoadingRequestCount === 0) {
+    store.dispatch({ type: 'loading/closed' });
+  }
+}
 
 class HttpClient {
   constructor(cfg) {
-    this.timeout = 10000;  // 10秒超时
+    this.timeout = 10000; // 10秒超时
     this.withCredentials = true;
     // 异常的回掉函数, 对外面全局处理
     if (cfg && cfg.responseException) {
@@ -14,6 +35,9 @@ class HttpClient {
   setInterceptors(instance, options) {
     // 获取请求拦截器
     instance.interceptors.request.use((config) => {
+      // 全局loading
+      // store.dispatch({ type: 'loading/open' });
+      showFullScreenLoading();
       const method = config.method;
       if (method && (method.toLowerCase() === 'post' || method.toLowerCase() === 'put')) {
         config.data = QS.stringify(config.params);
@@ -30,6 +54,10 @@ class HttpClient {
 
     // 处理响应拦截器
     instance.interceptors.response.use((response) => {
+      // 关闭全局loading
+      tryHideFullScreenLoading();
+      // store.dispatch({ type: 'loading/closed' });
+
       // 外部方法处理响应拦截器后 再返回response
       options.responseCallBack && options.responseCallBack(response);
       if (response.status === 200) {  // 正常200的情况下
@@ -39,6 +67,9 @@ class HttpClient {
         this.responseException && this.responseException(response);
       }
     }, (err) => {
+      // 关闭全局loading
+      tryHideFullScreenLoading();
+      // store.dispatch({ type: 'loading/closed' });
       // 处理响应拦截器异常的情况
       this.responseException && this.responseException(err);
       console.log('err.response', err);

@@ -12,6 +12,8 @@ const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 
 const OptimizeCssAssetsPlugin = require('optimize-css-assets-webpack-plugin');
 
+const AddAssetHtmlWebpackPlugin = require('add-asset-html-webpack-plugin');
+
 module.exports = merge(baseWebpackConfig, {
   mode: 'production',
   // 添加代码

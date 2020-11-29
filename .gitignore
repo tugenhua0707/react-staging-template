@@ -13,4 +13,5 @@ tap.log
 .deps
 .vscode
 dll/
+index.md
 
