@@ -77,17 +77,18 @@
 
   如上是我脚手架的整个目录架构，下面分别介绍各个目录的含义：
 ```
-build目录：主要是webpack进行项目打包，分了开发环境(webpack.dev.conf.js)和正式环境(webpack.prod.conf.js)打包。
+build目录：主要是webpack进行项目打包，分了开发环境(webpack.dev.conf.js)和正式
+环境(webpack.prod.conf.js)打包。
 
-mock目录：可以对接口数据进行模拟。比如线上接口叫 'xxxxx/yyyy/widget' 这样的话，那么我们只需要在mock文件夹下
-新建 widget.json文件即可。里面的数据就是和开发接口约定的数据复制进去即可。
+mock目录：可以对接口数据进行模拟。比如线上接口叫 'xxxxx/yyyy/widget' 这样的话，那么我们
+只需要在mock文件夹下新建 widget.json文件即可。里面的数据就是和开发接口约定的数据复制进去即可。
 
 public目录：就是一个index.html文件。
 
 src目录：
   
-  1、apiforward 目录：最主要存放 node实现接口转发的代码封装, 如果前面的mock数据满足不了的话，可以使用node
-  进行接口数据转发，把线上的接口转发到本地node服务器上来，优点是：
+  1、apiforward 目录：最主要存放 node实现接口转发的代码封装, 如果前面的mock数据满足不了的话，
+  可以使用node进行接口数据转发，把线上的接口转发到本地node服务器上来，优点是：
     a. 可以解决跨域(不用配置cors)。
     b. 可以合并请求。
     c. 代码调试可以发ajax请求，实现接口测试。
