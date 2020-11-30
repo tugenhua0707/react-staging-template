@@ -70,7 +70,15 @@ module.exports = merge(baseWebpackConfig, {
     https: false,
     noInfo: true,
     open: true,
-    proxy: {},
+    proxy: {
+      '/api': {
+        target: 'http://127.0.0.1:3002',
+        changeOrigin: true,  // 是否跨域
+        pathRewrite: {
+          '^/api' : ''  // 重写路径
+        }
+      }
+    },
     before: app => {
       mocker({
         mockDir: path.resolve('./mock')

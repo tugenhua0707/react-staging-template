@@ -23,7 +23,7 @@
 https://blog.csdn.net/youlinhuanyan/article/details/107867162
 
 14. 支持服务器端渲染。
-15. 引用qiankun解决微前端架构。
+15. 引用解决微前端架构。
 16. 支持PWA离线应用开发。
 17. 支持前端监控。
 

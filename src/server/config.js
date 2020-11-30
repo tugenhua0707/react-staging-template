@@ -5,6 +5,25 @@
 import { namespace } from './domain';
 import HttpClient from './http';
 
+const loc = window.location;
+let prefix = '';
+const dev = 'mode=dev';
+const apiforward = ['localhost', '127.0.0.1'];
+let domain = namespace;
+
+if (loc.href.indexOf(dev) > -1) {
+  // prefix = '';
+} else {
+  const flag = apiforward.filter((v) => {
+    return loc.href.indexOf(v) > -1;
+  });
+  if (flag) {
+    prefix = '/api';
+    domain = '';
+  }
+}
+console.log('-----prefix----', prefix);
+
 // 统一处理异常信息
 const exception = {
   responseException(err) {
@@ -62,7 +81,7 @@ const params = function(options) {
 
 // ---------------  公用的上传和下载 ---------------
 export const fileUpload = options => httpClient.request({
-  url: `${namespace}/xxx`,
+  url: '',
   params: params(options),
   method: 'post',
   headers: { 'Content-Type': 'multipart/form-data' },
@@ -70,7 +89,7 @@ export const fileUpload = options => httpClient.request({
 
 // 文件下载
 export const download = options => httpClient.request({
-  url: `${namespace}/xxx`,
+  url: '',
   params: params(options),
   method: options.method || 'post',
   responseType: options.blob || 'arraybuffer',
@@ -79,9 +98,9 @@ export const download = options => httpClient.request({
 
 // 接口请求示列
 export const getWidget = options => httpClient.request({
-  url: `${namespace}/api/widget`,
+  url: `${domain}` + prefix + '/widget',
   params: params(options),
-  method: 'post',
+  method: 'get',
   // 请求拦截器回调函数
   requestCallBack(cfg) {
     console.log('xxxx--请求拦截器添加参数----');

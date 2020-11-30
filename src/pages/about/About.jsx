@@ -1,6 +1,6 @@
 
 import React, { Component} from 'react';
-import { getWidget } from '@server/config';
+import { getWidget, getWidget2 } from '@server/config';
 
 function log(target, name, descriptor) {
   target.islog = true;
@@ -26,10 +26,9 @@ export default class About extends Component {
       'id': 'LocalNews',
       'ajax': 'json'
     }).then((data) => {
-      console.log('data---');
-      console.log(data);
+      console.log('data---', data);
     }).catch(err => {
-      console.log(err);
+      console.log('-------请求异常-------', err);
     });
   }
   render() {
