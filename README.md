@@ -376,12 +376,9 @@ export const handleActions = ({ state, action, reducers, namespace = '' }) => {
     : state;
   return obj;
 };
-
-  我们在页面中的调用方式需要改成： store.dispatch({ type: 'counter/add' }); 当我们触发action的时候，先调用 getKey方法，
-  该方法接受2个参数，一个为：'counter/add', 另一个为 '/'; 然后使用 const index = 'counter/add'.indexOf('/'); 的位置。
-  最后返回 return str.substring(index + 1, str.length + 1); 即：'add' 这个字符串。
-
 ```
+  我们在页面中的调用方式需要改成： store.dispatch({ type: 'counter/add' }); 当我们触发action的时候，先调用 getKey方法，该方法接受2个参数，一个为：'counter/add', 另一个为 '/'; 然后使用 const index = 'counter/add'.indexOf('/'); 的位置。最后返回 return str.substring(index + 1, str.length + 1); 即：'add' 这个字符串。
+
   store/modules/counter.js 代码如下：
 ```
 import { handleActions } from '../util';
