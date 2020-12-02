@@ -480,8 +480,43 @@ export const persistor = persistStore(store);
 // store.dispatch = (type, data) => _dispatch({type, data});
 export default store;
 ```
+### <div id="id5">引入ant组件</div>
 
-
+  1. 引入antd组件需要按需加载。首先安装插件，如下命令：
+```
+npm install --save-dev babel-plugin-import　
+```
+  2. 在项目的根目录下 babel.config.js 引入如下配置项：
+```
+module.exports = {
+  plugins: [
+  	[
+  	  "import", {
+  	  	"libraryName": "antd",
+  	  	"libraryDirectory": "es",
+  	  	"style": "css"
+  	  }
+  	]
+  ]
+}
+```
+  3. 最后按需引入antd中的组件，无需再单独引入样式文件，App.js：
+```
+import React from "react";
+// import Button from "antd/es/button";
+// import "antd/dist/antd.css";
+import { Button } from "antd";
+ 
+function App() {
+  return (
+    <div className="App">
+      app
+      <Button type="primary">btn</Button>
+    </div>
+  );
+}
+export default App;
+```
 
 
 
