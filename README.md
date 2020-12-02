@@ -332,7 +332,7 @@ export default (state = initialState, action) => handleActions({
 
   但是有时候当对象结构比较复杂的时候，嵌套对象很深的时候，我们可以通过引入 immer（一个小巧的不可变数据结构的库） 来优化。
 
-  需要引入 immer 库来优化。
+  需要引入 immer 库来优化。<a href="https://segmentfault.com/a/1190000017270785">查看immer使用</a>
 ```
 import produce from "immer"
 ```
