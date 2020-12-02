@@ -1,4 +1,5 @@
 import { createStore, combineReducers } from 'redux';
+// import thunk from 'redux-thunk';
 import counter from './modules/counter';
 import todoList from './modules/todoList';
 import loading from './modules/loading';
@@ -23,7 +24,11 @@ const persistConfig = {
 };
 const myPersistReducer = persistReducer(persistConfig, reducers);
 
-const store = createStore(myPersistReducer, devToolsEnhancer());
+const store = createStore(
+  myPersistReducer,
+  devToolsEnhancer(),
+);
+
 export const persistor = persistStore(store);
 // const _dispatch = store.dispatch;
 // store.dispatch = (type, data) => _dispatch({type, data});

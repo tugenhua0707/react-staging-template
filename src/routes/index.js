@@ -30,11 +30,10 @@ const RouteWithSubRoutes = route => {
         )
       }
     />
-  )
-}
+  );
+};
 
-const RouterIndex = () => {
-  return (
+const RouterIndex = () => (
     <div>
       <Router>
         <Suspense fallback={<div>Loading...</div>}>
@@ -44,7 +43,6 @@ const RouterIndex = () => {
         </Suspense>
       </Router>
     </div>
-  )
-}
+  );
 
 export default RouterIndex;

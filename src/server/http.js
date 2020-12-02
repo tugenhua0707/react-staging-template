@@ -5,14 +5,18 @@ import store from '@store';
 
 /* 添加一个计数器 */
 let needLoadingRequestCount = 0
-
+/**
+ * 显示loading
+ */
 function showFullScreenLoading() {
   if (needLoadingRequestCount === 0) {
     store.dispatch({ type: 'loading/open' });
   }
   needLoadingRequestCount++
 }
-
+/**
+ * 隐藏loading
+ */
 function tryHideFullScreenLoading() {
   if (needLoadingRequestCount <= 0) {
     return;
@@ -39,6 +43,7 @@ class HttpClient {
       // store.dispatch({ type: 'loading/open' });
       showFullScreenLoading();
       const method = config.method;
+      // 如果是post或put
       if (method && (method.toLowerCase() === 'post' || method.toLowerCase() === 'put')) {
         config.data = QS.stringify(config.params);
         delete config.params;

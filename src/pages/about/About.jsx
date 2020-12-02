@@ -1,6 +1,6 @@
 
 import React, { Component} from 'react';
-import { getWidget, getWidget2 } from '@server/config';
+import { getWidget } from '@server/config';
 
 function log(target, name, descriptor) {
   target.islog = true;

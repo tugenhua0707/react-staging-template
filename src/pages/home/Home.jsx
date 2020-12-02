@@ -6,16 +6,6 @@ export default class Home extends Component {
     this.state = {
       count: store.getState().count
     };
-  }
-  onIncrement = () => {
-    // 触发dispatch事件
-    store.dispatch({ type: 'counter/add' });
-  }
-  minus = () => {
-    // 触发dispatch事件
-    store.dispatch({ type: 'counter/minus' });
-  }
-  render() {
     store.subscribe(() => {
       const { counter } = store.getState();
       // 使用setState 重新渲染页面
@@ -23,6 +13,19 @@ export default class Home extends Component {
         count: counter.count
       });
     });
+  }
+  onIncrement = () => {
+    // 触发dispatch事件
+    setTimeout(() => {
+      store.dispatch({ type: 'counter/add' });
+    }, 100);
+    // store.dispatch({ type: 'counter/add' });
+  }
+  minus = () => {
+    // 触发dispatch事件
+    store.dispatch({ type: 'counter/minus' });
+  }
+  render() {    
     console.log(this.state);
     return (
       <div>

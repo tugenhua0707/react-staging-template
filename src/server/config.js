@@ -14,9 +14,7 @@ let domain = namespace;
 if (loc.href.indexOf(dev) > -1) {
   // prefix = '';
 } else {
-  const flag = apiforward.filter((v) => {
-    return loc.href.indexOf(v) > -1;
-  });
+  const flag = apiforward.filter((v) => loc.href.indexOf(v) > -1);
   if (flag) {
     prefix = '/api';
     domain = '';
@@ -84,7 +82,7 @@ export const fileUpload = options => httpClient.request({
   url: '',
   params: params(options),
   method: 'post',
-  headers: { 'Content-Type': 'multipart/form-data' },
+  headers: { 'Content-Type': 'multipart/form-data' }
 });
 
 // 文件下载
@@ -92,7 +90,7 @@ export const download = options => httpClient.request({
   url: '',
   params: params(options),
   method: options.method || 'post',
-  responseType: options.blob || 'arraybuffer',
+  responseType: options.blob || 'arraybuffer'
 });
 
 
