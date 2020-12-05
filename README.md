@@ -519,17 +519,17 @@ export default App;
 ```
 ### <div id="id6">六：封装axios请求</div>
 
-封装axios请求是根据之前文章来进行封装的，之前的文章，请看<a href="https://github.com/tugenhua0707/react-collection/blob/master/ajax/axios.md">这篇文章</a>, 因此把它封装的思想引入到项目中来，因此在我们项目中，我这边在src文件夹目录下新建了一个server文件夹目录，该目录有如下结构文件。
-
+  封装axios请求是根据之前文章来进行封装的，之前的文章，请看<a href="https://github.com/tugenhua0707/react-collection/blob/master/ajax/axios.md">这篇文章</a>, 因此把它封装的思想引入到项目中来，因此在我们项目中，我这边在src文件夹目录下新建了一个server文件夹目录，该目录有如下结构文件。
+```
 ├── src
 │ ├── server 
 │ │ ├── config.js
 │ │ ├── domain.js
 │ │ └── http.js
 └──
-
-http.js 是对 axios 请求进行封装的，如下封装代码：
-
+```
+  http.js 是对 axios 请求进行封装的，如下封装代码：
+```
 // src/server/http.js
 import axios from 'axios';
 import QS from 'qs'; // 引入qs模块, 用来序列化post类型的数据
@@ -596,9 +596,9 @@ class HttpClient {
 }
 
 export default HttpClient;
-
-src/server/config.js 是保存项目中所有请求的，比如代码如下：
-
+```
+  src/server/config.js 是保存项目中所有请求的，比如代码如下：
+```
 // src/server/http.js
 
 /**
@@ -716,24 +716,24 @@ export const getWidget = options => httpClient.request({
     // cfg.data = {'xx': 11};
   }
 });
-
-src/server/domian.js 是处理接口不同域名的，基本代码可以如下：
-
+```
+  src/server/domian.js 是处理接口不同域名的，基本代码可以如下：
+```
 export const namespace = 'http://localhost:8081';
 export const namespace2 = 'http://127.0.0.1:3002';
-
+```
 ### <div id="id7">七：添加全局loading</div>
 
-在项目开发中往往需要在接口返回较慢的时候给出loading的状态，防止在接口返回值的过程中用户多次点击，因此我们这里使用了antd组件需要包裹想要遮罩的元素，那么我们如何在请求的入口统一添加全局的loading呢？
+  在项目开发中往往需要在接口返回较慢的时候给出loading的状态，防止在接口返回值的过程中用户多次点击，因此我们这里使用了antd组件需要包裹想要遮罩的元素，那么我们如何在请求的入口统一添加全局的loading呢？
 
 #### 使用redux实现全局loading
 
 #### 添加Spin
 
-首先我们需要在入口文件 src/pages/App.js 中添加全局的Spin，Spin组件包裹所有的元素，代码如下：
+  首先我们需要在入口文件 src/pages/App.js 中添加全局的Spin，Spin组件包裹所有的元素，代码如下：
 
-src/pages/App.js 代码如下：
-
+  src/pages/App.js 代码如下：
+```
 import React, { Component } from 'react';
 import RouterIndex from '@routes/index';
 import '@assets/css/app.less';
@@ -760,16 +760,16 @@ class App extends Component {
   }
 }
 export default App;
-
+```
 #### 接口拦截设置Loading显示
 
-我们需要在接口发出请求之前设置Loading显示，在返回之后设置为其隐藏。
+  我们需要在接口发出请求之前设置Loading显示，在返回之后设置为其隐藏。
 
-因此我们需要定义两个action动作，一个用来打开loading，另一个是用来关闭loading。因此我们需要新建一个loading.js。因此我在 src/store/modules/ 中新建
+  因此我们需要定义两个action动作，一个用来打开loading，另一个是用来关闭loading。因此我们需要新建一个loading.js。因此我在 src/store/modules/ 中新建
 loading.js 来使用redux来实现全局的loading。之前有redux的思想，我们同样可以使用到loading上了。
 
-src/store/modules/loading.js 基本代码如下：
-
+  src/store/modules/loading.js 基本代码如下：
+```
 import { handleActions } from '../util';
 
 const initialState = {
@@ -789,9 +789,9 @@ export default (state = initialState, action) => handleActions({
   reducers,
   namespace: 'loading'
 });
-
-代码完成以后，我们需要在 src/index.js 入口文件引入该loading.js , 代码如下：
-
+```
+  代码完成以后，我们需要在 src/index.js 入口文件引入该loading.js , 代码如下：
+```
 // src/index.js
 
 import { createStore, combineReducers } from 'redux';
@@ -828,9 +828,9 @@ export const persistor = persistStore(store);
 // const _dispatch = store.dispatch;
 // store.dispatch = (type, data) => _dispatch({type, data});
 export default store;
-
-最后我们需要在 src/server/http.js 请求之前设置loading，请求之后关闭loading，部分代码如下添加：
-
+```
+  最后我们需要在 src/server/http.js 请求之前设置loading，请求之后关闭loading，部分代码如下添加：
+```
 // src/server/http.js
 import axios from 'axios';
 import QS from 'qs'; // 引入qs模块, 用来序列化post类型的数据
@@ -874,15 +874,13 @@ class HttpClient {
 }
 
 export default HttpClient;
-
-在接口发出请求之前通过 store.dispatch({ type: 'loading/open' }); 派发操作，在接口返回时候（不管接口请求成功还是失败）都通过 store.dispatch({ type: 'loading/closed' }); 来关闭loading。
+```
+  在接口发出请求之前通过 store.dispatch({ type: 'loading/open' }); 派发操作，在接口返回时候（不管接口请求成功还是失败）都通过 store.dispatch({ type: 'loading/closed' }); 来关闭loading。
 
 #### loading优化
 
-如果一个页面只有一个接口请求的话，那么上述方法是可行的，但是如果一个页面有多个接口，当其中有个接口返回值很慢的时候我们就会发现问题，就是当一个接口还是pending
-时候，全局loading就消失了。当然这不是我们想要的结果。按道理应该是当页面所有的接口同时请求都pending结束后才隐藏loading的。因此我们需要添加一个计数器。
-基本代码如下：
-
+  如果一个页面只有一个接口请求的话，那么上述方法是可行的，但是如果一个页面有多个接口，当其中有个接口返回值很慢的时候我们就会发现问题，就是当一个接口还是pending时候，全局loading就消失了。当然这不是我们想要的结果。按道理应该是当页面所有的接口同时请求都pending结束后才隐藏loading的。因此我们需要添加一个计数器。基本代码如下：
+```
 // src/server/http.js
 import axios from 'axios';
 import QS from 'qs'; // 引入qs模块, 用来序列化post类型的数据
@@ -953,9 +951,8 @@ class HttpClient {
 }
 
 export default HttpClient;
-
+```
 ### <div id="id8">八：引入装饰器环境</div>
-
 
 
 ### <div id="id9">九：添加mock数据</div>
