@@ -9,6 +9,7 @@ export default class Home extends Component {
     store.subscribe(() => {
       const { counter } = store.getState();
       // 使用setState 重新渲染页面
+      console.log('----store----', store.getState());
       this.setState({
         count: counter.count
       });

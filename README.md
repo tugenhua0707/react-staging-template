@@ -114,16 +114,16 @@ src目录：
 
 下面我来一步步讲解项目搭建的过程。
 
-#### 一：搭建环境
+### 一：搭建环境
 
   搭建脚手架环境框架是使用webpack进行搭建的，那么详细如何搭建的，可以看之前这篇文章，<a href="https://github.com/tugenhua0707/react-collection/blob/master/react/reactStaging.md">点击链接进去</a>
 
-#### <div id="id2">二：添加eslint代码规范</div>
+### <div id="id2">二：添加eslint代码规范</div>
 
 eslint代码规范也是在网上找到一个规范的，了解更详细的请看之前文章 <a href="https://github.com/tugenhua0707/react-collection/blob/master/es6/eslint.md">点击链接</a>, 我们也可以根据自己的项目中需要
 的规范自己决定规范。
 
-#### <div id="id3">三：动态路由封装</div>
+### <div id="id3">三：动态路由封装</div>
 
   React v16.6.0以上版本才支持React.lazy(路由懒加载)和 Suspense，比如如下代码：
 ```
@@ -268,7 +268,7 @@ ReactDOM.render(
   document.getElementById('root')
 );
 ```
-#### <div id="id4">四：Redux封装</div>
+### <div id="id4">四：Redux封装</div>
 
 #### 官方推荐action和reducer放在不同文件目录下，但是在编写代码中切换不同的文件很繁琐。
 常见的做法，如demo列子，<a href="https://github.com/tugenhua0707/react-collection/blob/master/react/redux.md">点击链接查看常见的做法</a>
@@ -480,7 +480,7 @@ export const persistor = persistStore(store);
 // store.dispatch = (type, data) => _dispatch({type, data});
 export default store;
 ```
-### <div id="id5">引入ant组件</div>
+### <div id="id5">五：引入ant组件</div>
 
   1. 引入antd组件需要按需加载。首先安装插件，如下命令：
 ```
@@ -517,7 +517,453 @@ function App() {
 }
 export default App;
 ```
+### <div id="id6">六：封装axios请求</div>
 
+封装axios请求是根据之前文章来进行封装的，之前的文章，请看<a href="https://github.com/tugenhua0707/react-collection/blob/master/ajax/axios.md">这篇文章</a>, 因此把它封装的思想引入到项目中来，因此在我们项目中，我这边在src文件夹目录下新建了一个server文件夹目录，该目录有如下结构文件。
+
+├── src
+│ ├── server 
+│ │ ├── config.js
+│ │ ├── domain.js
+│ │ └── http.js
+└──
+
+http.js 是对 axios 请求进行封装的，如下封装代码：
+
+// src/server/http.js
+import axios from 'axios';
+import QS from 'qs'; // 引入qs模块, 用来序列化post类型的数据
+import store from '@store';
+
+class HttpClient {
+  constructor(cfg) {
+    this.timeout = 10000; // 10秒超时
+    this.withCredentials = true;
+    // 异常的回掉函数, 对外面全局处理
+    if (cfg && cfg.responseException) {
+      this.responseException = cfg.responseException;
+    }
+  }
+  setInterceptors(instance, options) {
+    // 获取请求拦截器
+    instance.interceptors.request.use((config) => {
+      const method = config.method;
+      // 如果是post或put
+      if (method && (method.toLowerCase() === 'post' || method.toLowerCase() === 'put')) {
+        config.data = QS.stringify(config.params);
+        delete config.params;
+      }
+      /* 设置请求头部 比如登录token，登录时候可以获取保存到store中， 然后这边可以动态获取到该token值。*/
+      config.headers['Accept'] = 'application/x-www-form-urlencoded';
+      config.headers.common['Authorization'] = 'AUTH_TOKEN';
+
+      // 外部方法处理请求拦截器后 再返回config
+      options.requestCallBack && options.requestCallBack(config);
+      return config;
+    }, err => Promise.reject(err));
+
+    // 处理响应拦截器
+    instance.interceptors.response.use((response) => {
+
+      // 外部方法处理响应拦截器后 再返回response
+      options.responseCallBack && options.responseCallBack(response);
+      if (response.status === 200) {  // 正常200的情况下
+        return response.data;
+      } else {
+        // 处理响应拦截器异常的情况
+        this.responseException && this.responseException(response);
+      }
+    }, (err) => {
+      // 处理响应拦截器异常的情况
+      this.responseException && this.responseException(err);
+      console.log('err.response', err);
+      return Promise.reject(err);
+    })
+  }
+  request(options) {
+    // 每次请求都会创建新的axios的实列
+    const instance = axios.create();
+    // 参数合并
+    const config = {
+      timeout: this.timeout,
+      withCredentials: this.withCredentials,
+      ...options,
+    };
+    // 设置拦截器
+    this.setInterceptors(instance, config);
+    return instance(config); // 返回axios的实列的执行结果
+  }
+}
+
+export default HttpClient;
+
+src/server/config.js 是保存项目中所有请求的，比如代码如下：
+
+// src/server/http.js
+
+/**
+ * api 接口统一管理
+*/
+// 域名引入
+import { namespace } from './domain';
+import HttpClient from './http';
+
+const loc = window.location;
+let prefix = '';
+const dev = 'mode=dev';
+const apiforward = ['localhost', '127.0.0.1'];
+let domain = namespace;
+
+if (loc.href.indexOf(dev) > -1) {
+  // prefix = '';
+} else {
+  const flag = apiforward.filter((v) => loc.href.indexOf(v) > -1);
+  if (flag) {
+    prefix = '/api';
+    domain = '';
+  }
+}
+console.log('-----prefix----', prefix);
+
+// 统一处理异常信息
+const exception = {
+  responseException(err) {
+    console.log('返回异常', err);
+    let message = '';
+    const status = err.status - 0;
+    switch (status) {
+      case 400:
+        message = '请求错误(400)';
+        break;
+      case 401:
+        message = '未授权，请重新登录(401)';
+        break;
+      case 403:
+        message = '拒绝访问(403)';
+        break;
+      case 404:
+        message = '请求出错(404)';
+        break;
+      case 408:
+        message = '请求超时(408)';
+        break;
+      case 500:
+        message = '服务器错误(500)';
+        break;
+      case 501:
+        message = '服务未实现(501)';
+        break;
+      case 502:
+        message = '网络错误(502)';
+        break;
+      case 503:
+        message = '服务不可用(503)';
+        break;
+      case 504:
+        message = '网络超时(504)';
+        break;
+      case 505:
+        message = 'HTTP版本不受支持(505)';
+        break;
+      default:
+        message = `连接出错(${status})!`;
+    }
+    return `${message}，请检查网络或联系管理员！`;
+  }
+};
+const httpClient = new HttpClient(exception);
+const params = function(options) {
+  const obj = {};
+  for (const i in options) {
+    obj[i] = options[i];
+  }
+  return obj;
+};
+
+// ---------------  公用的上传和下载 ---------------
+export const fileUpload = options => httpClient.request({
+  url: '',
+  params: params(options),
+  method: 'post',
+  headers: { 'Content-Type': 'multipart/form-data' }
+});
+
+// 文件下载
+export const download = options => httpClient.request({
+  url: '',
+  params: params(options),
+  method: options.method || 'post',
+  responseType: options.blob || 'arraybuffer'
+});
+
+
+// 接口请求示列
+export const getWidget = options => httpClient.request({
+  url: `${domain}` + prefix + '/widget',
+  params: params(options),
+  method: 'get',
+  // 请求拦截器回调函数
+  requestCallBack(cfg) {
+    console.log('xxxx--请求拦截器添加参数----');
+    console.log(cfg);
+    cfg.headers['Accept'] = 'application/x-www-form-urlencoded';
+    cfg.headers.common['Authorization'] = 'AUTH_TOKEN';
+  },
+  // 响应拦截器回调函数
+  responseCallBack(cfg) {
+    // cfg.status = 404;
+    console.log('---响应拦截器可以对返回的数据进行构造---', cfg);
+    // cfg.data = {'xx': 11};
+  }
+});
+
+src/server/domian.js 是处理接口不同域名的，基本代码可以如下：
+
+export const namespace = 'http://localhost:8081';
+export const namespace2 = 'http://127.0.0.1:3002';
+
+### <div id="id7">七：添加全局loading</div>
+
+在项目开发中往往需要在接口返回较慢的时候给出loading的状态，防止在接口返回值的过程中用户多次点击，因此我们这里使用了antd组件需要包裹想要遮罩的元素，那么我们如何在请求的入口统一添加全局的loading呢？
+
+#### 使用redux实现全局loading
+
+#### 添加Spin
+
+首先我们需要在入口文件 src/pages/App.js 中添加全局的Spin，Spin组件包裹所有的元素，代码如下：
+
+src/pages/App.js 代码如下：
+
+import React, { Component } from 'react';
+import RouterIndex from '@routes/index';
+import '@assets/css/app.less';
+import { Button, Spin } from 'antd';
+
+class App extends Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      loading: false
+    };
+  }
+  render() {
+    const { loading } = this.state;
+    console.log('loading加载状态', loading);
+    return (
+      <Spin spinning={loading} wrapperClassName="page-loading">
+        <div>
+          <Button>请点击按钮</Button>
+          <RouterIndex />
+        </div>
+      </Spin>
+    );
+  }
+}
+export default App;
+
+#### 接口拦截设置Loading显示
+
+我们需要在接口发出请求之前设置Loading显示，在返回之后设置为其隐藏。
+
+因此我们需要定义两个action动作，一个用来打开loading，另一个是用来关闭loading。因此我们需要新建一个loading.js。因此我在 src/store/modules/ 中新建
+loading.js 来使用redux来实现全局的loading。之前有redux的思想，我们同样可以使用到loading上了。
+
+src/store/modules/loading.js 基本代码如下：
+
+import { handleActions } from '../util';
+
+const initialState = {
+  loading: false
+};
+const reducers = {
+  open(state, action) {
+    state.loading = true;
+  },
+  closed(state, action) {
+    state.loading = false;
+  }
+};
+export default (state = initialState, action) => handleActions({
+  state,
+  action,
+  reducers,
+  namespace: 'loading'
+});
+
+代码完成以后，我们需要在 src/index.js 入口文件引入该loading.js , 代码如下：
+
+// src/index.js
+
+import { createStore, combineReducers } from 'redux';
+import counter from './modules/counter';
+import todoList from './modules/todoList';
+import loading from './modules/loading';  // 新增的 引入loading
+import { persistStore, persistReducer } from 'redux-persist';
+//  存储机制，可换成其他机制，当前使用sessionStorage机制
+import storageSession from 'redux-persist/lib/storage/session';
+import { devToolsEnhancer } from 'redux-devtools-extension'; // redux调试工具
+
+const reducers = combineReducers({
+  counter,
+  todoList,
+  loading,
+});
+
+const persistConfig = {
+  key: 'root',
+  storage: storageSession
+  // navigation不会被存入缓存中，其他会，适用于少部分数据需要实时更新
+  // blacklist: ['navigation']
+  // navigation会存入缓存，其他不会存，适用于大多数数据并不会实时从后台拿数据
+  // whitelist: ['navigation']
+};
+const myPersistReducer = persistReducer(persistConfig, reducers);
+
+const store = createStore(
+  myPersistReducer,
+  devToolsEnhancer(),
+);
+
+export const persistor = persistStore(store);
+// const _dispatch = store.dispatch;
+// store.dispatch = (type, data) => _dispatch({type, data});
+export default store;
+
+最后我们需要在 src/server/http.js 请求之前设置loading，请求之后关闭loading，部分代码如下添加：
+
+// src/server/http.js
+import axios from 'axios';
+import QS from 'qs'; // 引入qs模块, 用来序列化post类型的数据
+import store from '@store';
+
+class HttpClient {
+  constructor(cfg) {
+    
+  }
+  setInterceptors(instance, options) {
+    // 获取请求拦截器
+    instance.interceptors.request.use((config) => {
+      // 全局loading
+      store.dispatch({ type: 'loading/open' });
+    }, err => Promise.reject(err));
+
+    // 处理响应拦截器
+    instance.interceptors.response.use((response) => {
+      // 关闭全局loading
+      store.dispatch({ type: 'loading/closed' });
+      // ... 其他更多代码
+    }, (err) => {
+      // 关闭全局loading
+      store.dispatch({ type: 'loading/closed' });
+      // ... 其他更多代码
+    })
+  }
+  request(options) {
+    // 每次请求都会创建新的axios的实列
+    const instance = axios.create();
+    // 参数合并
+    const config = {
+      timeout: this.timeout,
+      withCredentials: this.withCredentials,
+      ...options,
+    };
+    // 设置拦截器
+    this.setInterceptors(instance, config);
+    return instance(config); // 返回axios的实列的执行结果
+  }
+}
+
+export default HttpClient;
+
+在接口发出请求之前通过 store.dispatch({ type: 'loading/open' }); 派发操作，在接口返回时候（不管接口请求成功还是失败）都通过 store.dispatch({ type: 'loading/closed' }); 来关闭loading。
+
+#### loading优化
+
+如果一个页面只有一个接口请求的话，那么上述方法是可行的，但是如果一个页面有多个接口，当其中有个接口返回值很慢的时候我们就会发现问题，就是当一个接口还是pending
+时候，全局loading就消失了。当然这不是我们想要的结果。按道理应该是当页面所有的接口同时请求都pending结束后才隐藏loading的。因此我们需要添加一个计数器。
+基本代码如下：
+
+// src/server/http.js
+import axios from 'axios';
+import QS from 'qs'; // 引入qs模块, 用来序列化post类型的数据
+import store from '@store';
+
+/* 添加一个计数器 */
+let needLoadingRequestCount = 0
+/**
+ * 显示loading
+ */
+function showFullScreenLoading() {
+  if (needLoadingRequestCount === 0) {
+    store.dispatch({ type: 'loading/open' });
+  }
+  needLoadingRequestCount++
+}
+/**
+ * 隐藏loading
+ */
+function tryHideFullScreenLoading() {
+  if (needLoadingRequestCount <= 0) {
+    return;
+  }
+  needLoadingRequestCount--;
+  if (needLoadingRequestCount === 0) {
+    store.dispatch({ type: 'loading/closed' });
+  }
+}
+
+class HttpClient {
+  constructor(cfg) {
+    
+  }
+  setInterceptors(instance, options) {
+    // 获取请求拦截器
+    instance.interceptors.request.use((config) => {
+      // 全局loading
+      // store.dispatch({ type: 'loading/open' });
+      showFullScreenLoading();
+    }, err => Promise.reject(err));
+
+    // 处理响应拦截器
+    instance.interceptors.response.use((response) => {
+      // 关闭全局loading
+      tryHideFullScreenLoading();
+      // store.dispatch({ type: 'loading/closed' });
+      // ... 其他更多代码
+    }, (err) => {
+      // 关闭全局loading
+      tryHideFullScreenLoading();
+      // store.dispatch({ type: 'loading/closed' });
+      // ... 其他更多代码
+    })
+  }
+  request(options) {
+    // 每次请求都会创建新的axios的实列
+    const instance = axios.create();
+    // 参数合并
+    const config = {
+      timeout: this.timeout,
+      withCredentials: this.withCredentials,
+      ...options,
+    };
+    // 设置拦截器
+    this.setInterceptors(instance, config);
+    return instance(config); // 返回axios的实列的执行结果
+  }
+}
+
+export default HttpClient;
+
+### <div id="id8">八：引入装饰器环境</div>
+
+
+
+### <div id="id9">九：添加mock数据</div>
+
+
+### <div id="id10">十：node实现接口转发</div>
+
+### <div id="id11">十一：自动化部署项目发布上线</div>
 
 
 
