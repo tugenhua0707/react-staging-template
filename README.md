@@ -954,14 +954,396 @@ export default HttpClient;
 ```
 ### <div id="id8">八：引入装饰器环境</div>
 
+  需要安装babel插件，如果 babel >= 7.x 的时候，
+```
+npm install --save-dev @babel/plugin-proposal-decorators
+```
+  如果 babel@6.x 的时候
+```
+npm install --save-dev babel-plugin-transfrom-decorators-legacy
+```
+  然后需要在项目的根目录的 babel.config.js 添加如下配置代码：
+
+  babel >= 7.x
+```
+module.exports = {
+  presets: [
+  	"@babel/preset-env",
+  	"@babel/preset-react"
+  ],
+  plugins: [
+  	"@babel/plugin-transform-arrow-functions", // 箭头函数的处理
+  	// "@babel/plugin-proposal-class-properties",
+    ["@babel/plugin-proposal-decorators", {"legacy": true}], // 这个是装饰器
+    ["@babel/plugin-proposal-class-properties", { "loose": false }],
+  	[
+  	  "import", {
+  	  	"libraryName": "antd",
+  	  	"libraryDirectory": "es",
+  	  	"style": "css"
+  	  }
+  	]
+  ]
+}
+```
+  babel@6.x 
+```
+module.exports = {
+  presets: [],
+  plugins: [
+  	"transform-decorators-legacy"
+  ]
+}
+```
+  装饰器如何使用，也可以看之前的文章 <a href="https://github.com/tugenhua0707/react-collection/blob/master/es6/decorator.md">Es6/Es7之Decorator装饰器模式</a>
 
 ### <div id="id9">九：添加mock数据</div>
 
+#### 安装 json-mocker-tool
+```
+npm install --save-dev json-mocker-tool
+```
+  然后在项目的根目录 build/webpack.dev.conf.js中会引入该插件
+```
+.... // 更多代码
+
+// 引入mock工具
+const mocker = require('json-mocker-tool');
+
+module.exports = {
+  devServer: {
+    before: app => {
+      mocker({
+        mockDir: path.resolve('./mock')
+      })(app);
+    }
+  }
+};
+```
+  在项目中使用mock数据来模拟真实接口也是非常简单的，正常如何编写ajax请求，还是按照之前一样写即可，如果ajax请求为：'http://xxx/yyy/widget.json' 的话，
+我们只需要在项目根目录下的mock文件夹中 新建 widget.json文件，然后把和后端约定好的数据格式复制进去即可。然后如果想使用的话，直接在地址栏中添加参数:
+mode=dev 刷新页面即可生效会走本地的mock数据。
+
+  想了解更多，mock如何实现的，<a href="https://github.com/tugenhua0707/react-collection/blob/master/mock/mock.md">请看这篇文章</a> 
 
 ### <div id="id10">十：node实现接口转发</div>
 
-### <div id="id11">十一：自动化部署项目发布上线</div>
+  node转发API的优势：
+```
+1. 可以在中间层把java返回的数据处理成对前端更友好的方式。
+2. 可以解决前端跨域问题，因为服务器端的请求是不涉及跨域的，跨域是浏览器的同源策略导致的。
+3. 可以将多个请求通过中间层合并，减少前端的请求。
+```
+  1. 首选我们需要安装 express
+```
+npm install --save express
+```
+  2. 然后在我们项目的根目录下 新建 node.api.js 文件，基本代码如下：
+```
+/**
+ * 职责:
+ * 1. 创建服务
+ * 2. 模板引擎
+ * 3. body-parser 解析表单post请求体
+ * 4. 提供静态资源服务
+ * 5. 挂载路由
+ * 6. 监听端口启动服务
+*/
 
+const express = require('express');
+const Router = express.Router();
+
+// 引入api路由
+const apiList = require('./src/apiforward/apiList/index');
+const app = express();
+const port = process.env.PORT || 3002;
+
+// 设置静态资源
+app.use('/node_modules/', express.static('./node_modules/'));
+app.use('/public/', express.static('./public/'));
+
+app.use((req, res, next) => {
+  // 解决跨域
+  res.set('Access-Control-Allow-Origin', '*');
+  next();
+});
+
+// 挂载路由
+app.use(apiList(Router));
+
+app.listen(port, () => {
+  console.log(`app listening on http://127.0.0.1:${port}`);
+});
+```
+  3. 在 src/apiforward 新建如下文件。
+```
+｜--- src
+｜ |--- apiforward
+｜ | |--- apiList
+｜ | | |--- index.js
+｜ | | |--- widget.js
+｜ | |--- utils
+｜ | | |--- request.js
+｜ | | |--- userAgent.js
+```
+  3.1. 在src/utils文件夹中创建 request.js文件，用来处理axios。代码如下：
+```
+// src/utils/request.js
+const axios = require('axios');
+const userAgent = require('./userAgent');
+
+const request = (paramInfo) => {
+  function getDataFn(obj) {
+  	const getData = {
+  	  url: obj.url,
+  	  method: obj.method || 'get',
+  	  baseURL: obj.baseURL || 'http://news.baidu.com/',
+  	  headers: {
+  	  	'User-Agent': userAgent(),
+  	  }
+  	};
+  	if (getData.method === 'get') {
+  	  getData.params = obj.data;
+  	} else {
+  	  getData.data = obj.data;
+  	}
+  	return getData;
+  }
+  if (!Array.isArray(paramInfo)) {
+  	return axios(getDataFn(paramInfo));
+  } else {
+  	const fetchArray = paramInfo.map(v => {
+  	  return axios(getDataFn(v));
+  	});
+  	return new Promise((resolve, reject) => {
+  	  axios.all(fetchArray)
+  	  	.then(axios.spread(function(...arg){
+  	  	  // 多个请求都执行完成
+  	  	  resolve(arg);
+  	  	})).catch(err => {
+  	  	  console.log('请求异常:' +err);
+  	  	})
+  	});
+  }
+};
+
+module.exports = request;
+```
+  3.2. 创建随机User-Agent
+ 
+  在src/utils文件夹中创建 userAgent.js 文件
+```
+// 返回一个随机的请求头 headers的UA
+const user_agent_list = [
+  // 各种PC端
+  // Safari
+  "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/534.57.2 (KHTML, like Gecko) Version/5.1.7 Safari/534.57.2",
+  // chrome
+  "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/39.0.2171.71 Safari/537.36",
+  "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.11 (KHTML, like Gecko) Chrome/23.0.1271.64 Safari/537.11",
+  "Mozilla/5.0 (Windows; U; Windows NT 6.1; en-US) AppleWebKit/534.16 (KHTML, like Gecko) Chrome/10.0.648.133 Safari/534.16",
+  // 360
+  "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/30.0.1599.101 Safari/537.36",
+  "Mozilla/5.0 (Windows NT 6.1; WOW64; Trident/7.0; rv:11.0) like Gecko",
+  // QQ浏览器
+  "Mozilla/5.0 (compatible; MSIE 9.0; Windows NT 6.1; WOW64; Trident/5.0; SLCC2; .NET CLR 2.0.50727; .NET CLR 3.5.30729; .NET CLR 3.0.30729; Media Center PC 6.0; .NET4.0C; .NET4.0E; QQBrowser/7.0.3698.400)",
+  "Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1; SV1; QQDownload 732; .NET4.0C; .NET4.0E)",
+  // sogou浏览器
+  "Mozilla/5.0 (Windows NT 5.1) AppleWebKit/535.11 (KHTML, like Gecko) Chrome/17.0.963.84 Safari/535.11 SE 2.X MetaSr 1.0",
+  "Mozilla/4.0 (compatible; MSIE 7.0; Windows NT 5.1; Trident/4.0; SV1; QQDownload 732; .NET4.0C; .NET4.0E; SE 2.X MetaSr 1.0)",
+   
+   // 各种移动端
+   // IPhone
+   "Mozilla/5.0 (iPhone; U; CPU iPhone OS 4_3_3 like Mac OS X; en-us) AppleWebKit/533.17.9 (KHTML, like Gecko) Version/5.0.2 Mobile/8J2 Safari/6533.18.5",
+   // IPod
+   "Mozilla/5.0 (iPod; U; CPU iPhone OS 4_3_3 like Mac OS X; en-us) AppleWebKit/533.17.9 (KHTML, like Gecko) Version/5.0.2 Mobile/8J2 Safari/6533.18.5",
+   // IPAD
+   "Mozilla/5.0 (iPad; U; CPU OS 4_2_1 like Mac OS X; zh-cn) AppleWebKit/533.17.9 (KHTML, like Gecko) Version/5.0.2 Mobile/8C148 Safari/6533.18.5",
+   "Mozilla/5.0 (iPad; U; CPU OS 4_3_3 like Mac OS X; en-us) AppleWebKit/533.17.9 (KHTML, like Gecko) Version/5.0.2 Mobile/8J2 Safari/6533.18.5",
+   // Android
+   "Mozilla/5.0 (Linux; U; Android 2.2.1; zh-cn; HTC_Wildfire_A3333 Build/FRG83D) AppleWebKit/533.1 (KHTML, like Gecko) Version/4.0 Mobile Safari/533.1",
+   "Mozilla/5.0 (Linux; U; Android 2.3.7; en-us; Nexus One Build/FRF91) AppleWebKit/533.1 (KHTML, like Gecko) Version/4.0 Mobile Safari/533.1",
+   // QQ浏览器 Android版本
+   "MQQBrowser/26 Mozilla/5.0 (Linux; U; Android 2.3.7; zh-cn; MB200 Build/GRJ22; CyanogenMod-7) AppleWebKit/533.1 (KHTML, like Gecko) Version/4.0 Mobile Safari/533.1",
+   // Android Opera Mobile
+   "Opera/9.80 (Android 2.3.4; Linux; Opera Mobi/build-1107180945; U; en-GB) Presto/2.8.149 Version/11.10",
+   // Android Pad Moto Xoom
+   "Mozilla/5.0 (Linux; U; Android 3.0; en-us; Xoom Build/HRI39) AppleWebKit/534.13 (KHTML, like Gecko) Version/4.0 Safari/534.13",
+   // BlackBerry
+   "Mozilla/5.0 (BlackBerry; U; BlackBerry 9800; en) AppleWebKit/534.1+ (KHTML, like Gecko) Version/6.0.0.337 Mobile Safari/534.1+",
+   // WebOS HP Touchpad
+   "Mozilla/5.0 (hp-tablet; Linux; hpwOS/3.0.0; U; en-US) AppleWebKit/534.6 (KHTML, like Gecko) wOSBrowser/233.70 Safari/534.6 TouchPad/1.0",
+   // Nokia N97
+   "Mozilla/5.0 (SymbianOS/9.4; Series60/5.0 NokiaN97-1/20.0.019; Profile/MIDP-2.1 Configuration/CLDC-1.1) AppleWebKit/525 (KHTML, like Gecko) BrowserNG/7.1.18124",
+   // Windows Phone Mango
+   "Mozilla/5.0 (compatible; MSIE 9.0; Windows Phone OS 7.5; Trident/5.0; IEMobile/9.0; HTC; Titan)",
+   // UC浏览器
+   "UCWEB7.0.2.37/28/999",
+   "NOKIA5700/ UCWEB7.0.2.37/28/999",
+   // UCOpenwave
+   "Openwave/ UCWEB7.0.2.37/28/999",
+   // UC Opera
+   "Mozilla/4.0 (compatible; MSIE 6.0; ) Opera/UCWEB7.0.2.37/28/999",
+   // 一部分 PC端的
+   "Mozilla/5.0 (Windows NT 6.1) AppleWebKit/536.3 (KHTML, like Gecko) Chrome/19.0.1061.1 Safari/536.3",
+   "Mozilla/5.0 (Windows NT 6.2) AppleWebKit/536.3 (KHTML, like Gecko) Chrome/19.0.1061.0 Safari/536.3",
+   "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/535.24 (KHTML, like Gecko) Chrome/19.0.1055.1 Safari/535.24",
+   "Mozilla/5.0 (Windows NT 6.2; WOW64) AppleWebKit/535.24 (KHTML, like Gecko) Chrome/19.0.1055.1 Safari/535.24"
+]
+
+module.exports = () =>{
+  const index = Math.floor(Math.random() * user_agent_list.length);
+  return user_agent_list[index];
+}
+```
+  3.3. apiList的封装
+
+  在src/apifoward 文件目录下 新建  widget.js 文件，添加如下代码：
+```
+module.exports = (app) => {
+  app.get('/widget', async(req, res) => {
+  	try {
+  	  const result = await app.request({
+  	  	url: 'widget?id=LocalNews&ajax=json',
+        method: 'get',
+  	  	data: {
+  	  	  ...req.query
+  	  	}
+  	  });
+  	  res.send(result.data);
+  	} catch (err) {
+  	  res.send({
+  	  	code: 500,
+  	  	msg: err.message
+  	  })
+  	}
+  })
+}
+```
+  3.4. 需要在当前文件夹中再创建入口文件 src/apiList/index.js
+```
+const fs = require('fs');
+const path = require('path');
+
+const request = require('../utils/request');
+
+// 查找出当前文件夹所有的api文件名 不包括 index.js
+const routes = fs.readdirSync(__dirname).filter(item => item.indexOf('index') !== 0);
+
+module.exports = (router) => {
+  // 将请求放到每个实列中
+  router.request = request;
+  routes.forEach((item) => {
+  	const routeFn = require(path.resolve(__dirname, item));
+  	routeFn(router);
+  });
+  return router;
+};
+```
+  3.5. 最后：更新我们完整的入口index.js文件, 请看第二步，已经引入了  const apiList = require('./src/apiforward/apiList/index');
+
+  这些所有做完以后，我们还是需要 在 build/webpack.dev.conf.js 中配置下，
+```
+module.exports = {
+  devServer: {
+    proxy: {
+      '/api': {
+        target: 'http://127.0.0.1:3002',
+        changeOrigin: true,  // 是否跨域
+        pathRewrite: {
+          '^/api' : ''  // 重写路径
+        }
+      }
+    },
+  }
+}
+```
+  需要在每个请求之前添加 /api 前缀目录，先转发到node启动的服务下 http://127.0.0.1:3002，再node会转发真正的接口数据，然后使用本地的node域名就可以拿到
+数据，以后如果有多个接口的话，都可以在 src/apifoward/apiList目录下新建对应的接口文件即可（和widget.js文件类似的写法即可）。
+
+  因此我们需要在 src/server/config.js 中进行简单前缀配置下，如下代码：
+```
+const loc = window.location;
+let prefix = '';
+const dev = 'mode=dev';
+const apiforward = ['localhost', '127.0.0.1'];
+let domain = namespace;
+
+if (loc.href.indexOf(dev) > -1) {
+  // prefix = '';
+} else {
+  const flag = apiforward.filter((v) => loc.href.indexOf(v) > -1);
+  if (flag) {
+    prefix = '/api';
+    domain = '';
+  }
+}
+console.log('-----prefix----', prefix);
+```
+  然后在 src/server/config.js 代码中编写接口如下：
+```
+export const getWidget = options => httpClient.request({
+  url: `${domain}` + prefix + '/widget',
+  params: params(options),
+  method: 'get',
+});
+```
+  就可以了，其他的也是一样，前缀我在该文件中已经进行处理了，如果 location.href 后面有 mode=dev的话，说明是本地进行mock数据，如果不是这个的话，就会使用node进行转发操作。当然如果你不想进行转发的话，也可以自己改下。看自己的需要吧，最主要为了防止在有的情况下接口跨域（开发没有配置cors的情况下）。
+
+4. 在package.json添加启动命令：
+```
+scripts: {
+  "api": "nodemon node.api.js"
+}
+```
+  最后我们重启node服务即可。使用命令：npm run api ，同时启动本地服务 npm run dev 即可看到效果。
+
+### <div id="id11">十一：自动化部署项目发布上线</div>
+```
+1. npm i my-auto-deploy-cli -g 把包下载下来。
+2. 进入自己的项目的根目录，然后运行 deploy init 命令下载配置文件.
+3. 在我们的项目的根目录下会生成 deploy/deploy.config.js 文件.
+```
+  deploy/deploy.config.js 配置文件内容如下：
+```
+const config = {
+  privateKey: '', // 本地私钥地址，比如 xxx/.ssh/id_rsa  非必填，有私钥 就配置
+  passphrase: '', // 本地私钥密码, 非必填，有私钥 就配置
+  projectName: 'kongzhi自动化',
+  dev: {
+    name: '测试环境',
+    script: 'npm run build', // 打包
+    host: '', // 测试服务器地址
+    post: 22, // ssh port 一般默认22
+    username: 'root', // 登录服务器用户名
+    password: '', // 登录服务器密码
+    targetDir: '../dist',  // 目标压缩目录（可使用相对地址）
+    targetFile: 'dist.zip', // 目标文件
+    openBackUp: true, // 是否开启远端备份
+    deployDir: '/usr/local/nginx/html' + '/', // 远端目录
+    releaseDir: 'web' // 发布目录
+  },
+  prod: {
+    name: '线上环境',
+    script: 'npm run build', // 打包
+    host: '', // 服务器地址
+    post: 22, // ssh port 一般默认22
+    username: 'root', // 登录服务器用户名
+    password: '', // 登录服务器密码
+    targetDir: '../dist',  // 目标压缩目录（可使用相对地址）
+    targetFile: 'dist.zip', // 目标文件
+    openBackUp: true, // 是否开启远端备份
+    deployDir: '/usr/local/nginx/html' + '/', // 远端目录
+    releaseDir: 'web' // 发布目录
+  }
+};
+module.exports = config;
+```
+  4. 配置下我们的配置文件，这里提供了2种环境，一个是开发环境 dev，另一个是prod环境指的是打包到线上。我们把 host， username， password等等配置填写成自己的。配置完成后，比如我们打包代码到开发环境请，我们只需要运行 deploy dev 命令即可
+
+  想了解更多，<a href="https://github.com/tugenhua0707/fe-deploy-cli-template/tree/master/my-auto-deploy-cli">请看这篇文章</a> 
+
+  Node实现自动化部署，<a href="https://github.com/tugenhua0707/react-collection/blob/master/autoDeployment/autoDeploy1.md">请看这篇文章</a>
 
 
 
