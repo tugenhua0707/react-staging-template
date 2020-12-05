@@ -3,6 +3,7 @@
 
 const path = require('path');
 const webpack = require('webpack');
+const WebpackNotifierPlugin = require('webpack-notifier');
 
 // 引入HappyPack插件 
 const HappyPack = require('happypack');
@@ -70,6 +71,12 @@ const obj = {
       'process.env': {
         NODE_ENV: JSON.stringify(process.env.NODE_ENV)
       }
+    }),
+    new WebpackNotifierPlugin({
+      title: 'AISC building...',
+      // contentImage: path.join(__dirname, 'img', 'aisued.png'),
+      alwaysNotify: true,
+      excludeWarning: true
     }),
     new HappyPack({
       // 用唯一的标识符id，来代表当前的HappyPack是用来处理一类特定的文件

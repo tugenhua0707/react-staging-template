@@ -1,5 +1,5 @@
 
-### React + Webpack 搭建前端脚手架
+### React + Webpack 搭建中后台前端脚手架
 
 - [x] [搭建环境](#id1) <br/>
 - [x] [添加eslint代码规范](#id2) <br/>
