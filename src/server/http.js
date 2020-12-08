@@ -4,15 +4,13 @@ import QS from 'qs'; // 引入qs模块, 用来序列化post类型的数据
 import store from '@store';
 
 /* 添加一个计数器 */
-let needLoadingRequestCount = 0
-/**
- * 显示loading
- */
+let needLoadingRequestCount = 0;
+
 function showFullScreenLoading() {
   if (needLoadingRequestCount === 0) {
     store.dispatch({ type: 'loading/open' });
   }
-  needLoadingRequestCount++
+  needLoadingRequestCount++;
 }
 /**
  * 隐藏loading
@@ -49,8 +47,8 @@ class HttpClient {
         delete config.params;
       }
       /* 设置请求头部 比如登录token，登录时候可以获取保存到store中， 然后这边可以动态获取到该token值。*/
-      config.headers['Accept'] = 'application/x-www-form-urlencoded';
-      config.headers.common['Authorization'] = 'AUTH_TOKEN';
+      config.headers.Accept = 'application/x-www-form-urlencoded';
+      config.headers.common.Authorization = 'AUTH_TOKEN';
 
       // 外部方法处理请求拦截器后 再返回config
       options.requestCallBack && options.requestCallBack(config);
@@ -65,7 +63,7 @@ class HttpClient {
 
       // 外部方法处理响应拦截器后 再返回response
       options.responseCallBack && options.responseCallBack(response);
-      if (response.status === 200) {  // 正常200的情况下
+      if (response.status === 200) { // 正常200的情况下
         return response.data;
       } else {
         // 处理响应拦截器异常的情况
@@ -79,7 +77,7 @@ class HttpClient {
       this.responseException && this.responseException(err);
       console.log('err.response', err);
       return Promise.reject(err);
-    })
+    });
   }
   request(options) {
     // 每次请求都会创建新的axios的实列
@@ -88,7 +86,7 @@ class HttpClient {
     const config = {
       timeout: this.timeout,
       withCredentials: this.withCredentials,
-      ...options,
+      ...options
     };
     // 设置拦截器
     this.setInterceptors(instance, config);

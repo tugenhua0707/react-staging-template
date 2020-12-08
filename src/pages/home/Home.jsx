@@ -26,7 +26,7 @@ export default class Home extends Component {
     // 触发dispatch事件
     store.dispatch({ type: 'counter/minus' });
   }
-  render() {    
+  render() {
     console.log(this.state);
     return (
       <div>

@@ -72,7 +72,9 @@ const httpClient = new HttpClient(exception);
 const params = function(options) {
   const obj = {};
   for (const i in options) {
-    obj[i] = options[i];
+    if (options.hasOwnProperty(i)) {
+      obj[i] = options[i];
+    }
   }
   return obj;
 };
@@ -103,8 +105,8 @@ export const getWidget = options => httpClient.request({
   requestCallBack(cfg) {
     console.log('xxxx--请求拦截器添加参数----');
     console.log(cfg);
-    cfg.headers['Accept'] = 'application/x-www-form-urlencoded';
-    cfg.headers.common['Authorization'] = 'AUTH_TOKEN';
+    cfg.headers.Accept = 'application/x-www-form-urlencoded';
+    cfg.headers.common.Authorization = 'AUTH_TOKEN';
   },
   // 响应拦截器回调函数
   responseCallBack(cfg) {
