@@ -12,11 +12,11 @@
 - [x] [添加mock数据](#id9) <br/>
 - [x] [node实现接口转发](#id10) <br/>
 - [x] [自动化部署项目发布上线](#id11) <br/> 
+- [x] [引入qiankun微前端架构](#id12) <br/>
 - [ ] [支持页面主框架布局] <br/>
 - [ ] [封装常用的公用组件] <br/>
 - [ ] [支持typescript语法] <br/>
 - [ ] [支持服务器端渲染] <br/>
-- [ ] [引入微前端架构] <br/>
 - [ ] [支持PWA离线应用开发] <br/>
 - [ ] [引入前端监控] <br/>
 - [ ] [支持Jest单元测试] <br/>
@@ -1345,6 +1345,279 @@ module.exports = config;
 
   Node实现自动化部署，<a href="https://github.com/tugenhua0707/react-collection/blob/master/autoDeployment/autoDeploy1.md">请看这篇文章</a>
 
+### <div id="id12">引入qiankun微前端架构</div>
+
+qiankun有那些优点，懒得说，可以看官网 <a href="https://qiankun.umijs.org/zh/api">进入qiankun官网API</a>
+
+React引入微前端可以查看demo，<a href="https://github.com/tugenhua0707/micro-app-react">点击查看</a>
+
+下面是分享如何使用 qiankun 如何搭建主应用基座，然后接入react技术栈来完成微应用。
+
+#### 构建主应用基座
+
+将一般的项目改造成 qiankun 主应用基座，需要完成如下三个步骤：
+
+1. 创建微应用容器 --- 目的是用于承载微应用，渲染显示微应用。
+2. 注册微应用 --- 设置微应用的激活条件，微应用地址等等。
+3. 启动qiankun。
+
+#### 1. 创建微应用容器
+
+我们先下载react脚手架，我这边先使用本react搭建框架做demo，我们可以在本地指定的目录克隆react模版，如下命令：
+
+git clone https://github.com/tugenhua0707/react-staging-template.git
+
+然后修改 项目的文件名称为：'micro-app-main', 该项目是主应用框架，接着我继续克隆一份，项目的文件名改成 'micro-app-react', 这是react其中一个的微应用。
+
+我们先在主应用中(micro-app-main)创建微应用的承载容器，该容器规定了微应用的显示区域，微应用将在该容器内渲染并显示。
+
+我们先设置路由，一般路由代码如下：
+
+// micro-app-main/src/routes/firstRouter.js 代码如下：
+
+// 实现懒加载路由
+import { lazy } from 'react';
+
+const routers = [
+  {
+    path: '/',
+    component: lazy(() => import('@pages/home/Home'))
+  },
+  {
+    path: '/index',
+    component: lazy(() => import('@pages/home/Home'))
+  },
+  {
+    key: 'ReactMicroApp',
+    title: 'React主页',
+    path: '/react'
+  }
+];
+export default routers;
+
+然后我们启动服务，访问 http://localhost:8082/ 后就可以看到 home组件页面了。/react 路由是我们后续要添加的微应用。这里先不管。
+
+#### 2. 注册微应用
+
+主框架搭建好了以后，我们需要使用 qiankun 的 registerMicroApps 方法注册微应用。
+
+首先我们需要在我们项目中 micro-app-main/src 新建micro文件夹，用于保存微应用文件。有如下文件：
+
+｜--- micro
+｜ |--- app.js
+｜ |--- index.js
+
+// micro-app-main/src/micro/app.js 代码如下：
+/**
+ * name: 微应用名称 -- 只有唯一性
+ * entry: 微应用入口 --- 通过该地址加载微应用
+ * container: 微应用挂载节点 --- 微应用加载完成后将挂载在该节点上
+ * activeRule: 微应用触发的路由规则 --- 触发路由规则后将加载该微应用
+ */
+const apps = [
+  {
+    name: 'ReactMicroApp',
+    entry: '//localhost:8083',
+    container: '#root',
+    activeRule: '/react',
+    // 可以直接传参
+    props: {
+      pro: '传参'
+    }
+  }
+];
+
+export default apps;
+
+// micro-app-main/src/micro/index.js 代码如下：
+
+import {
+  registerMicroApps,
+  addGlobalUncaughtErrorHandler,
+  start,
+} from 'qiankun';
+
+// 注册微应用
+import app from './app';
+
+/**
+ * 注册微应用
+ * 第一个参数 --- 微应用的注册信息
+ * 第二个参数 --- 全局生命周期钩子函数
+ */
+registerMicroApps(app, {
+  // qiankun --- 微应用加载前
+  beforeLoad(app) {
+    console.log('before load', app.name);
+    return Promise.resolve();
+  },
+  // qiankun --- 微应用挂载后
+  afterMount(app) {
+    console.log('after mount', app.name);
+    return Promise.resolve();
+  }
+});
+
+/**
+ * 添加全局的未捕获的异常处理
+ */
+addGlobalUncaughtErrorHandler((event) => {
+  console.log(event);
+  const { message } = event;
+  if (message) {
+    console.log('微应用加载失败, 请检查应用是否可运行');
+  }
+});
+
+// 导出 qiankun 的启动函数
+export default start;
+
+#### 3. 启动主应用
+
+如上代码，我们已经注册好了微应用，导出start函数后，我们需要在合适的地方调用start启动主应用。代码如下：
+
+// micro-app-main/src/index.js
+
+import startQiankun from './micro';
+startQiankun();
+
+如上就是我们的主应用基座的配置了。
+
+#### 接入微应用
+
+我们现在主应用基座已经搭建好了，现在我们需要接入微应用了。我们需要在 刚刚创建的 micro-app-react 框架中进行配置。
+
+#### 1. 配置微应用
+
+在主应用注册好了微应用后，我们还需要对微应用进行一系列配置，首先我们需要在react的入口文件 index.js中，导出 qiankun主应用所需要的三个生命周期钩子函数，代码实现如下：
+
+// micro-app-react/src/public-path.js
+
+if (window.__POWERED_BY_QIANKUN__) {
+  // 动态设置 webpack publicPath，防止资源加载出错
+  // eslint-disable-next-line no-undef
+  __webpack_public_path__ = window.__INJECTED_PUBLIC_PATH_BY_QIANKUN__;
+}
+
+// micro-app-react/src/index.js
+
+import React from 'react';
+import ReactDOM from 'react-dom';
+import { BrowserRouter } from 'react-router-dom';
+import { PersistGate } from 'redux-persist/lib/integration/react';
+import { Provider } from 'react-redux';
+import { persistor } from '@store';
+import store from '@store';
+import App from './pages/App';
+import './public-path';
+
+/**
+ * 渲染函数
+ * 两种情况：主应用生命周期钩子中运行 / 微应用单独启动时运行
+ */
+
+ function render() {
+   ReactDOM.render(
+    <BrowserRouter>
+      <Provider store={store}>
+        <PersistGate persistor={persistor} loading={null}>
+          <App />
+        </PersistGate>
+      </Provider>
+    </BrowserRouter>,
+    document.getElementById('subRoot'));
+ }
+
+ // 独立运行时，直接挂载应用
+ if (!window.__POWERED_BY_QIANKUN__) {
+   render();
+ }
+
+ /**
+  * bootstrap 只会在微应用初始化时候调用一次，下次微应用重新进入时会直接调用 mount 钩子，不会再重复触发 bootstrap.
+  * 一般情况下我们可以在这里做一些全局变量的初始化，比如不会在 unmount 阶段被销毁的应用级别的缓存等。
+  */
+ export async function bootstrap() {
+   console.log('ReactMicroApp bootstraped');
+ }
+
+ /**
+  * 应用每次进入都会调用 mount 方法，一般情况下我们在这里触发应用的渲染方法
+  */
+ export async function mount(props) {
+  console.log('ReactMicroApp mount', props);
+  render(props);
+ }
+
+ /**
+  * 应用每次 卸载会调用该方法，一般我们会卸载微应用的应用实列
+  * @return null
+  */
+ export async function unmount() {
+  console.log('ReactMicroApp unmount');
+  ReactDOM.unmountComponentAtNode(document.getElementById('subRoot'));
+ }
+
+ 配置好了入口文件index.js后，我们还需要配置路由命名空间，来确保主应用可以正确加载微应用。代码如下：
+
+ // micro-app-react/src/routes/index.js
+
+....  更多代码
+
+ const BASE_NAME = window.__POWERED_BY_QIANKUN__ ? '/react' : '';
+ const RouterIndex = () => (
+    <div>
+      <Router basename={BASE_NAME}>
+        <Suspense fallback={<div>Loading...</div>}>
+          {
+            routes.map((route, i) => <RouteWithSubRoutes key={i} {...route} />)
+          }
+        </Suspense>
+      </Router>
+    </div>
+  );
+....  更多代码
+
+#### 配置webpack
+
+// micro-app-react/build/webpack.base.conf.js
+
+const obj = {
+  entry: {
+    app: './src/index.js',
+  },
+  output: {
+    filename: 'js/bundle.js',
+    path: path.resolve(__dirname, '../dist'),
+    // 微应用的包名，这里要与主应用中注册的微应用名称一致
+    library: `ReactMicroApp`,
+    // 将你的 library 暴露为所有的模块定义下都可运行的方式
+    libraryTarget: 'umd',
+    // 按需加载相关，设置为 webpackJsonp_ReactMicroApp 即可
+    jsonpFunction: `webpackJsonp_ReactMicroApp`
+  },
+}
+
+#### 解决跨域
+
+解决跨域需要在 micro-app-react/build/webpack.dev.conf.js 下配置下：
+
+// micro-app-react/build/webpack.dev.conf.js
+.... 更多代码
+const baseWebpackConfig = require('./webpack.base.conf');
+module.exports = merge(baseWebpackConfig, {
+  devServer: {
+    // 允许被主应用跨域
+    headers: {
+      'Access-Control-Allow-Origin': '*'
+    }
+  }
+}
+.... 更多代码
+
+如下图所示：
+
+<img src="https://raw.githubusercontent.com/tugenhua0707/react-collection/master/images/106.png" /> <br />
 
 
 
