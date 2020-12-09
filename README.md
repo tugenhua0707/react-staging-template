@@ -1618,7 +1618,7 @@ module.exports = merge(baseWebpackConfig, {
 ```
 如下图所示：
 
-<img src="https://raw.githubusercontent.com/tugenhua0707/react-collection/master/images/106.png" /> <br />
+<img src="https://raw.githubusercontent.com/tugenhua0707/react-collection/master/images/106.jpg" /> <br />
 
 
 
