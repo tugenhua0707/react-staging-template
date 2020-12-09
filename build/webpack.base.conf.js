@@ -6,6 +6,10 @@ const webpack = require('webpack');
 
 // 引入HappyPack插件 
 const HappyPack = require('happypack');
+const ProgressBarPlugin = require('progress-bar-webpack-plugin');
+const chalk = require('chalk');
+// const SpeedMeasurePlugin = require('speed-measure-webpack-plugin');
+// const smp = new SpeedMeasurePlugin();
 
 const obj = {
   entry: {
@@ -76,6 +80,10 @@ const obj = {
       id:'jsBabel',
       // 如何处理.js文件，用法和Loader配置中一样
       loaders:['babel-loader'],
+    }),
+    new ProgressBarPlugin({
+      format: '  build [:bar] ' + chalk.green.bold(':percent') + ' (:elapsed seconds)',
+      clear: false
     }),
   ]
 };

@@ -62,6 +62,7 @@ module.exports = merge(baseWebpackConfig, {
   ],
   devServer: {
     port: '8082',
+    disableHostCheck: true,
     contentBase: path.join(__dirname, '../public'),
     compress: true,
     historyApiFallback: true,
