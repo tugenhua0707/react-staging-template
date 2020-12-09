@@ -7,6 +7,7 @@ const HtmlWebpackPlugin = require('html-webpack-plugin');
 const mocker = require('json-mocker-tool');
 
 const webpack = require('webpack');
+const BrowserSyncPlugin = require('browser-sync-webpack-plugin');
 
 module.exports = merge(baseWebpackConfig, {
   mode: 'development',
@@ -58,7 +59,12 @@ module.exports = merge(baseWebpackConfig, {
       },
       hash: false
     }),
-    new webpack.HotModuleReplacementPlugin()
+    new webpack.HotModuleReplacementPlugin(),
+    new BrowserSyncPlugin({
+      host: '127.0.0.1',
+      port: 8083,
+      proxy: 'http://127.0.0.1:8082/'
+    })
   ],
   devServer: {
     port: '8082',
