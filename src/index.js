@@ -6,6 +6,8 @@ import { Provider } from 'react-redux';
 import { persistor } from '@store';
 import store from '@store';
 import App from './pages/App';
+import startQiankun from './micro';
+startQiankun();
 
 ReactDOM.render(
   <BrowserRouter>

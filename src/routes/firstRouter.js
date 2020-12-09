@@ -17,6 +17,11 @@ const routers = [
     meta: {
       id: 1
     }
+  },
+  {
+    key: 'ReactMicroApp',
+    title: 'React主页',
+    path: '/react'
   }
 ];
 export default routers;
