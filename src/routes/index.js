@@ -25,7 +25,7 @@ const RouteWithSubRoutes = route => {
       render = {
         props => (
           route.redirect ? <Redirect push to={route.redirect} from={route.path} />
-          : <route.component {...props} routes={route.routes} />
+          : (route.component ? <route.component {...props} routes={route.routes} /> : '')
         )
       }
     />

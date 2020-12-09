@@ -1347,32 +1347,32 @@ module.exports = config;
 
 ### <div id="id12">引入qiankun微前端架构</div>
 
-qiankun有那些优点，懒得说，可以看官网 <a href="https://qiankun.umijs.org/zh/api">进入qiankun官网API</a>
+  qiankun有那些优点，懒得说，可以看官网 <a href="https://qiankun.umijs.org/zh/api">进入qiankun官网API</a>
 
-React引入微前端可以查看demo，<a href="https://github.com/tugenhua0707/micro-app-react">点击查看</a>
+  React引入微前端可以查看demo，<a href="https://github.com/tugenhua0707/micro-app-react">点击查看</a>
 
-下面是分享如何使用 qiankun 如何搭建主应用基座，然后接入react技术栈来完成微应用。
+  下面是分享如何使用 qiankun 如何搭建主应用基座，然后接入react技术栈来完成微应用。
 
 #### 构建主应用基座
 
-将一般的项目改造成 qiankun 主应用基座，需要完成如下三个步骤：
-
+  将一般的项目改造成 qiankun 主应用基座，需要完成如下三个步骤：
+```
 1. 创建微应用容器 --- 目的是用于承载微应用，渲染显示微应用。
 2. 注册微应用 --- 设置微应用的激活条件，微应用地址等等。
 3. 启动qiankun。
-
+```
 #### 1. 创建微应用容器
 
-我们先下载react脚手架，我这边先使用本react搭建框架做demo，我们可以在本地指定的目录克隆react模版，如下命令：
-
+  我们先下载react脚手架，我这边先使用本react搭建框架做demo，我们可以在本地指定的目录克隆react模版，如下命令：
+```
 git clone https://github.com/tugenhua0707/react-staging-template.git
+```
+  然后修改 项目的文件名称为：'micro-app-main', 该项目是主应用框架，接着我继续克隆一份，项目的文件名改成 'micro-app-react', 这是react其中一个的微应用。
 
-然后修改 项目的文件名称为：'micro-app-main', 该项目是主应用框架，接着我继续克隆一份，项目的文件名改成 'micro-app-react', 这是react其中一个的微应用。
+  我们先在主应用中(micro-app-main)创建微应用的承载容器，该容器规定了微应用的显示区域，微应用将在该容器内渲染并显示。
 
-我们先在主应用中(micro-app-main)创建微应用的承载容器，该容器规定了微应用的显示区域，微应用将在该容器内渲染并显示。
-
-我们先设置路由，一般路由代码如下：
-
+  我们先设置路由，一般路由代码如下：
+```
 // micro-app-main/src/routes/firstRouter.js 代码如下：
 
 // 实现懒加载路由
@@ -1394,19 +1394,20 @@ const routers = [
   }
 ];
 export default routers;
-
-然后我们启动服务，访问 http://localhost:8082/ 后就可以看到 home组件页面了。/react 路由是我们后续要添加的微应用。这里先不管。
+```
+  然后我们启动服务，访问 http://localhost:8082/ 后就可以看到 home组件页面了。/react 路由是我们后续要添加的微应用。这里先不管。
 
 #### 2. 注册微应用
 
-主框架搭建好了以后，我们需要使用 qiankun 的 registerMicroApps 方法注册微应用。
+  主框架搭建好了以后，我们需要使用 qiankun 的 registerMicroApps 方法注册微应用。
 
-首先我们需要在我们项目中 micro-app-main/src 新建micro文件夹，用于保存微应用文件。有如下文件：
-
+  首先我们需要在我们项目中 micro-app-main/src 新建micro文件夹，用于保存微应用文件。有如下文件：
+```
 ｜--- micro
 ｜ |--- app.js
 ｜ |--- index.js
-
+```
+```
 // micro-app-main/src/micro/app.js 代码如下：
 /**
  * name: 微应用名称 -- 只有唯一性
@@ -1471,26 +1472,26 @@ addGlobalUncaughtErrorHandler((event) => {
 
 // 导出 qiankun 的启动函数
 export default start;
-
+```
 #### 3. 启动主应用
 
-如上代码，我们已经注册好了微应用，导出start函数后，我们需要在合适的地方调用start启动主应用。代码如下：
-
+  如上代码，我们已经注册好了微应用，导出start函数后，我们需要在合适的地方调用start启动主应用。代码如下：
+```
 // micro-app-main/src/index.js
 
 import startQiankun from './micro';
 startQiankun();
-
-如上就是我们的主应用基座的配置了。
+```
+  如上就是我们的主应用基座的配置了。
 
 #### 接入微应用
 
-我们现在主应用基座已经搭建好了，现在我们需要接入微应用了。我们需要在 刚刚创建的 micro-app-react 框架中进行配置。
+  我们现在主应用基座已经搭建好了，现在我们需要接入微应用了。我们需要在 刚刚创建的 micro-app-react 框架中进行配置。
 
 #### 1. 配置微应用
 
-在主应用注册好了微应用后，我们还需要对微应用进行一系列配置，首先我们需要在react的入口文件 index.js中，导出 qiankun主应用所需要的三个生命周期钩子函数，代码实现如下：
-
+  在主应用注册好了微应用后，我们还需要对微应用进行一系列配置，首先我们需要在react的入口文件 index.js中，导出 qiankun主应用所需要的三个生命周期钩子函数，代码实现如下：
+```
 // micro-app-react/src/public-path.js
 
 if (window.__POWERED_BY_QIANKUN__) {
@@ -1557,9 +1558,9 @@ import './public-path';
   console.log('ReactMicroApp unmount');
   ReactDOM.unmountComponentAtNode(document.getElementById('subRoot'));
  }
-
- 配置好了入口文件index.js后，我们还需要配置路由命名空间，来确保主应用可以正确加载微应用。代码如下：
-
+```
+   配置好了入口文件index.js后，我们还需要配置路由命名空间，来确保主应用可以正确加载微应用。代码如下：
+```
  // micro-app-react/src/routes/index.js
 
 ....  更多代码
@@ -1577,9 +1578,9 @@ import './public-path';
     </div>
   );
 ....  更多代码
-
+```
 #### 配置webpack
-
+```
 // micro-app-react/build/webpack.base.conf.js
 
 const obj = {
@@ -1597,11 +1598,11 @@ const obj = {
     jsonpFunction: `webpackJsonp_ReactMicroApp`
   },
 }
-
+```
 #### 解决跨域
 
-解决跨域需要在 micro-app-react/build/webpack.dev.conf.js 下配置下：
-
+  解决跨域需要在 micro-app-react/build/webpack.dev.conf.js 下配置下：
+```
 // micro-app-react/build/webpack.dev.conf.js
 .... 更多代码
 const baseWebpackConfig = require('./webpack.base.conf');
@@ -1614,7 +1615,7 @@ module.exports = merge(baseWebpackConfig, {
   }
 }
 .... 更多代码
-
+```
 如下图所示：
 
 <img src="https://raw.githubusercontent.com/tugenhua0707/react-collection/master/images/106.png" /> <br />

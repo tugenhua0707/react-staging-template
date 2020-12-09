@@ -17,7 +17,7 @@ const routers = [
     meta: {
       id: 1
     }
-  }
+  },
 ];
 export default routers;
 

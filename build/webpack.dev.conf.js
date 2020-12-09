@@ -58,19 +58,6 @@ module.exports = merge(baseWebpackConfig, {
       },
       hash: false
     }),
-    // 进度插件
-    new webpack.ProgressPlugin((percentage, msg) => {
-      const stream = process.stderr;
-      if (stream.isTTY && percentage < 0.71) {
-        stream.cursorTo(0);
-        stream.write(`🐸 building...   ${~~(percentage * 100)}%`);
-        stream.clearLine(1);
-      } else {
-        stream.cursorTo(0);
-        stream.write(`🐸 ${msg}   ${~~(percentage * 100)}%`);
-        stream.clearLine(1);
-      }
-    }),
     new webpack.HotModuleReplacementPlugin()
   ],
   devServer: {
@@ -96,6 +83,6 @@ module.exports = merge(baseWebpackConfig, {
       mocker({
         mockDir: path.resolve('./mock')
       })(app);
-    }
+    },
   }
 })
